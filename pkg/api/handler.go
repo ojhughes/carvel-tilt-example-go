@@ -30,11 +30,14 @@ func NewHandler(options ...Option) *Handler {
 	handler.mux = http.NewServeMux()
 	handler.mux.HandleFunc("/", handler.index)
 	handler.mux.HandleFunc("/other", handler.other)
+	handler.mux.HandleFunc("/healthz", handler.healthz)
 	return handler
 }
 
 func (h *Handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	h.log("%s %s", request.Method, request.URL.Path)
+	if request.URL.Path != "/healthz" && request.URL.Path != "/readyz" {
+		h.log("%s %s", request.Method, request.URL.Path)
+	}
 	h.mux.ServeHTTP(writer, request)
 }
 
@@ -43,7 +46,7 @@ func (h *Handler) index(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	_, err := writer.Write([]byte("Deployed by Carvel!"))
+	_, err := writer.Write([]byte("Deployed with ❤️ Carvel!"))
 	if err != nil {
 		h.log("Error handling request %s %s", request.Method, request.URL.Path)
 		return
@@ -51,6 +54,7 @@ func (h *Handler) index(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (h *Handler) other(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(writer).Encode(map[string]interface{}{
 		"deployedBy": "Carvel",
 	})
@@ -58,6 +62,10 @@ func (h *Handler) other(writer http.ResponseWriter, request *http.Request) {
 		h.log("Error handling request %s %s", request.Method, request.URL.Path)
 		return
 	}
+}
+
+func (h *Handler) healthz(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) log(message string, values ...interface{}) {

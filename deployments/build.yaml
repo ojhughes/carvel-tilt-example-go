@@ -1,0 +1,10 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Config
+sources:
+  - image: carvel-tilt-example-go
+    path: .
+destinations:
+  - image: carvel-tilt-example-go
+    newImage: #@ "{}/{}".format(data.values.registry, data.values.image)

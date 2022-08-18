@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #@ data.values.name
+  namespace: #@ data.values.namespace
+spec:
+  replicas: #@ data.values.replicas
+  selector:
+    matchLabels:
+      app: #@ data.values.name
+  template:
+    metadata:
+      labels:
+        app: #@ data.values.name
+    spec:
+      containers:
+        - name: #@ data.values.name
+          image: #@ data.values.image
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: #@ data.values.port
+          env:
+            - name: PORT
+              value: #@ "{}".format(data.values.port)
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: #@ data.values.port
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: #@ data.values.port
+          resources: #@ data.values.resources

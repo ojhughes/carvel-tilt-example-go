@@ -1,0 +1,18 @@
+
+#@data/values-schema
+---
+name: carvel-tilt-demo
+namespace: carvel-tilt-demo
+registry: docker.io/ojhughes
+image: carvel-tilt-example-go
+port: 8084
+replicas: 1
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "100Mi"
+  limits:
+    cpu: "500m"
+    #@schema/desc "Memory limit of the controller"
+    memory: "500Mi"

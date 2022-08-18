@@ -18,7 +18,7 @@ compile_cmd = """
     rm build/carvel-tilt || true &&
 	go build \
         -o build/carvel-tilt \
-        github.com/ojhughes/carvel-tilt-example-go/cmd/carvel-tilt &&
+        cmd/carvel-tilt/main.go &&
         echo "Go build finished\n"
 """
 local_resource(

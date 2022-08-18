@@ -60,8 +60,8 @@ The YAML can be rendered with the command
 ```shell
 ytt -f deployments
 ```
-A number of default values are defined in the file `deployments/values-schema.yml`. These values can easily be overridden,
-to change the HTTP port of the deployed webserver, use command;
+A number of default values are defined in the file `deployments/values-schema.yml`, which can be easily overridden.
+To change the HTTP port of the deployed webserver, use command;
 
 ```shell
 ytt -f deployments --data-value-yaml port=8085
@@ -73,13 +73,13 @@ Note, `--data-value-yaml` is used instead of `--data-value` because port is an i
 the image and update the Kubernetes manifests. Updating the tag every build is important as it ensures Kubernetes
 will use the latest image version.
 
-In this demo, `kbld` uses [docker](https://www.docker.com) to build the image using the `Dockerfile` in the root of the project.
+In the demo, `kbld` uses [docker](https://www.docker.com) to build the image using the `Dockerfile` in the root of the project.
 
 Build the image using the following commands.
 
 ```shell
 # Compile the Go binary locally as it will be copied to the Docker image
-GOOS=linux GOARCG=amd64 go build -o build/carvel-tilt github.com/ojhughes/carvel-tilt-example -go/cmd/carvel-tilt
+GOOS=linux GOARCG=amd64 go build -o build/carvel-tilt cmd/carvel-tilt/main.go
 
 # Set REGISTRY variable to an image registry that you access to push images
 export REGISTRY=docker.io/my-registry/carvel-tilt-example-go
@@ -103,8 +103,8 @@ The app can be deployed with the command
 
 ## Bringing it all together with Tilt
 Using Tilt, the `ytt`, `kbld` and `kapp` commands will be automated to run every time a local code change is made.
-Tilt is configured using the `Tiltfile` in the root of the project. Visual Studio code has a plugin for editing
-Tiltfiles and is highly recommended.
+Tilt is configured using the `Tiltfile` in the root of the project. Visual Studio code has a [plugin](https://marketplace.visualstudio.com/items?itemName=tilt-dev.Tiltfile)
+for editing Tiltfiles and is highly recommended.
 
 ### Build stage
 First, a `local_resource` is defined to compile the Go application. A `local_resource` describes a task that runs on the local machine
@@ -125,14 +125,14 @@ local_resource(
 )
 
 ```
-`compile_cmd` is a containing the go build command to run
+`compile_cmd` is a variable containing the go build command to run
 
 `local_resouce` describes how to run the command. The `deps` argument references the files or folders that will trigger
 this command to run.
 
 ### Deploy stage
-To deploy the app to Kubernetes, `k8s_custom_deploy` is defined. This function expects a command to perform a deployment
-and then return the created resources as yaml. `kapp inspect` is used to return the raw objects for Tilt.
+To deploy the app to Kubernetes, `k8s_custom_deploy` is defined. This function runs a command that applies Kubernetes resources
+and then returns the created resources as YAML. `kapp inspect` is used to return the raw objects for Tilt.
 The `deps` argument is set to `build/carvel-tilt` as this forces Tilt to always run the build stage before the
 deploy stage.
 
@@ -158,19 +158,19 @@ k8s_custom_deploy(
 k8s_resource('carvel-tilt-demo', port_forwards=port, auto_init=False )
 ```
 ### Port forwarding
-Tilt can automatically create a port forward for the application using `k8s_resource`. This config also instructs tilt
-to ensure the `go-compile` resource runs before deploying the app.
+Tilt can automatically create a port forward for the application using `k8s_resource`.
 ```python
 k8s_resource(
     'carvel-tilt-demo', 
-     port_forwards=port, 
-     resource_deps=['go-compile']
+     port_forwards=port
  )
 ```
 ### Running Tilt
 
-First change the `registry` variable in the `Tiltfile` then run `tilt up`. Thi will read the `Tiltfile` and start the build/deploy workflow
+Change the `registry` variable in the `Tiltfile` and then run `tilt up`. This will read the `Tiltfile` and start the build/deploy workflow
 Once `tilt` is running, you can press the `s` key to stream the logs to the console or open [http://localhost:10350](http://localhost:10350) in your browser
+
+You can see the complete Tiltfile here [https://github.com/ojhughes/carvel-tilt-example-go/blob/main/Tiltfile](https://github.com/ojhughes/carvel-tilt-example-go/blob/main/Tiltfile)
 
 ### See it in action!
 ![](static/img/tilt-animated-demo.gif)

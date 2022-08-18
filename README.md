@@ -114,7 +114,7 @@ compile_cmd = """
     rm build/carvel-tilt || true &&
 	go build \
         -o build/carvel-tilt \
-        github.com/ojhughes/carvel-tilt-example-go/cmd/carvel-tilt &&
+        cmd/carvel-tilt/main.go &&
         echo "Go build finished\n"
 """
 local_resource(
@@ -138,7 +138,7 @@ deploy stage.
 
 ```python
 port = 8084
-registry = 'docker.io/ojhughes'
+registry = os.getenv('REGISTRY','docker.io/ojhughes')
 
 kapp_apply_cmd = """
     ytt --file deployments --data-value-yaml port=%d -v registry=%s| 
@@ -147,7 +147,7 @@ kapp_apply_cmd = """
     kapp inspect -n default -a carvel-tilt-demo --raw --tty=false
 """ % (port, registry)
 
-kapp_delete_cmd = "kapp delete -n default -a carvel-tilt -y"
+kapp_delete_cmd = "kapp delete -n default -a carvel-tilt-demo -y"
 
 k8s_custom_deploy(
     name='carvel-tilt-demo',
@@ -167,10 +167,24 @@ k8s_resource(
 ```
 ### Running Tilt
 
-Change the `registry` variable in the `Tiltfile` and then run `tilt up`. This will read the `Tiltfile` and start the build/deploy workflow
+Make sure the `REGISTRY` environment variable is set and simply run `tilt up`, this will read the `Tiltfile` and start the build/deploy workflow
 Once `tilt` is running, you can press the `s` key to stream the logs to the console or open [http://localhost:10350](http://localhost:10350) in your browser
 
+```shell
+# Set the variable to a registry you have push access to
+export REGISTRY=docker.io/myregistry
+
+# Build and deploy the project
+tilt up
+
+# Test the app works using the port forward created by tilt
+curl localhost:8084
+
+# Tear everything down
+tilt down
+```
 You can see the complete Tiltfile here [https://github.com/ojhughes/carvel-tilt-example-go/blob/main/Tiltfile](https://github.com/ojhughes/carvel-tilt-example-go/blob/main/Tiltfile)
+
 
 ### See it in action!
 ![](static/img/tilt-animated-demo.gif)

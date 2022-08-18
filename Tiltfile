@@ -3,7 +3,7 @@ update_settings (k8s_upsert_timeout_secs = 120, max_parallel_updates=1)
 
 
 port = 8084
-registry = 'docker.io/ojhughes'
+registry = os.getenv('REGISTRY','docker.io/ojhughes')
 
 kapp_apply_cmd = """
     ytt --file deployments --data-value-yaml port=%d -v registry=%s| 
@@ -12,7 +12,7 @@ kapp_apply_cmd = """
     kapp inspect -n default -a carvel-tilt-demo --raw --tty=false
 """ % (port, registry)
 
-kapp_delete_cmd = "kapp delete -n default -a carvel-tilt -y"
+kapp_delete_cmd = "kapp delete -n default -a carvel-tilt-demo -y"
 
 compile_cmd = """
     rm build/carvel-tilt || true &&

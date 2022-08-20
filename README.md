@@ -38,7 +38,6 @@ The repository contains a simple Go webserver and a set of manifests for deployi
 ├── Tiltfile
 ├── build
 │   └── carvel-tilt
-├── carvel-tilt-example-go.iml
 ├── cmd
 │   └── carvel-tilt
 │       └── main.go
@@ -55,7 +54,7 @@ The repository contains a simple Go webserver and a set of manifests for deployi
 ```
 
 ## Render Kubernetes manifests with ytt
-The demo uses ytt to render the Kubernetes YAML, this allows variables such as HTTP port to be substituted at build time.
+The demo uses [ytt](https://github.com/vmware-tanzu/carvel-ytt) to render the Kubernetes YAML, this allows variables such as HTTP port to be substituted at build time.
 The YAML can be rendered with the command
 ```shell
 ytt -f deployments
@@ -69,7 +68,7 @@ ytt -f deployments --data-value-yaml port=8085
 Note, `--data-value-yaml` is used instead of `--data-value` because port is an integer value
 
 ## Building the image with kbld
-`kbld` is used to build the image, this is a very useful tool for local development as it will automatically tag
+[kbld](https://github.com/vmware-tanzu/carvel-kbld) is used to build the image, this is a very useful tool for local development as it will automatically tag
 the image and update the Kubernetes manifests. Updating the tag every build is important as it ensures Kubernetes
 will use the latest image version.
 
@@ -90,7 +89,7 @@ ytt -f deployments -v registry=${REGISTRY} | kbld -f -
 The output will show the Kubernetes yaml has been updated to use the tag of freshly built image
 
 ## Deploy to Kubernetes with kapp
-Now we know how to build and tag the image, `kapp` can deploy the application. `kapp` builds on the functionality
+Now we know how to build and tag the image, [kapp](https://github.com/vmware-tanzu/carvel-kapp) can deploy the application. `kapp` builds on the functionality
 of `kubectl apply -f ...` by grouping resources and managing dependencies them.
 
 The app can be deployed with the command
